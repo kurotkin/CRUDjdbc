@@ -28,14 +28,14 @@ CREATE TABLE IF NOT EXISTS companies(
 
 CREATE TABLE IF NOT EXISTS developers(
   id int PRIMARY KEY,
-  firs_name varchar(50) not null,
+  first_name varchar(50) not null,
   last_name varchar(100) not null,
   specialty varchar(100) not null
 );
 
 CREATE TABLE IF NOT EXISTS customers(
   id int PRIMARY KEY,
-  firs_name varchar(50) not null,
+  first_name varchar(50) not null,
   last_name varchar(100) not null
 );
 

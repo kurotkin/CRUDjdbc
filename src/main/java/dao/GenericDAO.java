@@ -1,5 +1,6 @@
 package dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -7,7 +8,7 @@ import java.util.List;
  */
 public interface GenericDAO<V, ID> {
 
-    V getById(ID id);
+    V getById(ID id) throws SQLException;
     List<V> getAll();
     void save(V val);
     void update(V val);
