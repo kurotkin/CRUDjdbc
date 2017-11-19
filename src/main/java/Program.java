@@ -4,13 +4,11 @@ import java.sql.*;
  * Created by Vitaly Kurotkin on 09.11.2017.
  */
 public class Program {
-    static final String DATABASE_URL = "jdbc:mysql://localhost/BasicMySqlCRUD?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-    static final String USER = "root";
-    static final String PASSWORD = "ab123";
+    static final String DATABASE_URL = "jdbc:mysql://192.168.1.20/BasicMySqlCRUD?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+    static final String USER = "user";
+    static final String PASSWORD = "ab12345678";
 
     public static void main(String[] args) {
-        Connection connection;
-        Statement statement;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
@@ -19,10 +17,14 @@ public class Program {
             System.exit(1);
         }
 
-        try {
-            connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM developers");
+        try (
+                Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery("SELECT * FROM developers");
+            )
+
+        {
+
             while (resultSet.next()){
                 int id = resultSet.getInt("id");
                 String fisrt_name = resultSet.getString("firs_name");
