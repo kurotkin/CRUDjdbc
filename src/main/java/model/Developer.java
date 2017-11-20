@@ -64,6 +64,10 @@ public class Developer {
         return this;
     }
 
+    public void addSkill(Skill skill) {
+        skills.add(skill);
+    }
+
     public Long getId() {
         return id;
     }

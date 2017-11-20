@@ -9,8 +9,8 @@ import java.util.List;
 public interface GenericDAO<V, ID> {
 
     V getById(ID id) throws SQLException;
-    List<V> getAll();
-    void save(V val);
-    void update(V val);
-    void delete(V val);
+    List<V> getAll() throws SQLException;
+    void save(V val) throws SQLException;
+    void update(V val) throws SQLException;
+    void delete(V val) throws SQLException;
 }

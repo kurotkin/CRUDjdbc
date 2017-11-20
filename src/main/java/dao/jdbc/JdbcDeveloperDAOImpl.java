@@ -8,7 +8,9 @@ import model.Skill;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,6 +25,7 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
             "JOIN projects ON projects.id = developer_projects.projects_id " +
             "WHERE developers.id = ?";
 
+    private static final String sqlGetDev = "SELECT * FROM developers";
 
     @Override
     public Developer getById(Long id) throws SQLException {
@@ -32,11 +35,6 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
         ResultSet resultSet = statement.executeQuery();
 
         Developer developer = new Developer();
-        Long developerId = 0L;
-        String firstName = "";
-        String lastName;
-        String specialty;
-        BigDecimal salary;
         HashSet<Skill> skills = new HashSet<>();
         HashSet<Project> projects = new HashSet<>();
         while (resultSet.next()) {
@@ -56,12 +54,36 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
 
         }
         developer.withSkills(skills).withProjects(projects);
+        resultSet.close();
+        statement.close();
+        connection.close();
         return developer;
     }
 
     @Override
-    public List<Developer> getAll() {
-        return null;
+    public List<Developer> getAll() throws SQLException {
+        Connection connection = ConnectionUtil.getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(sqlGetDev);
+
+        List<Developer> developers = new ArrayList<>();
+        HashSet<Skill> skills = new HashSet<>();
+        HashSet<Project> projects = new HashSet<>();
+
+        while (resultSet.next()) {
+            Developer dev = new Developer()
+                    .withId(resultSet.getLong("developers.id"))
+                    .withFirstName(resultSet.getString("first_name"))
+                    .withLastName(resultSet.getString("last_name"))
+                    .withSpecialty(resultSet.getString("specialty"))
+                    .withSalary(resultSet.getBigDecimal("salary"));
+            developers.add(dev);
+        }
+
+        resultSet.close();
+        statement.close();
+        connection.close();
+        return developers;
     }
 
     @Override
@@ -75,7 +97,13 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
     }
 
     @Override
-    public void delete(Developer val) {
-
+    public void delete(Developer val) throws SQLException {
+        Connection connection = ConnectionUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement("DELETE FROM developers WHERE id = ?");
+        statement.setLong(1, val.getId());
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.close();
+        statement.close();
+        connection.close();
     }
 }
