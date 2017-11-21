@@ -57,4 +57,13 @@ public class Project {
     public void setCost(BigDecimal cost) {
         this.cost = cost;
     }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", cost=" + cost +
+                '}';
+    }
 }

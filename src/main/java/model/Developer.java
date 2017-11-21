@@ -123,4 +123,17 @@ public class Developer {
     public void setProjects(Set<Project> projects) {
         this.projects = projects;
     }
+
+    @Override
+    public String toString() {
+        return "Developer{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", specialty='" + specialty + '\'' +
+                ", salary=" + salary +
+                ", skills=" + skills +
+                ", projects=" + projects +
+                '}';
+    }
 }
