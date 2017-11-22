@@ -113,7 +113,6 @@ public class JdbcCompanyDAOImpl implements CompanyDAO {
         resultSet.close();
         statement.close();
         connection.close();
-
     }
 
     @Override

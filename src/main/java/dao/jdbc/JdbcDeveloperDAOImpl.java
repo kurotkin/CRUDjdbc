@@ -18,19 +18,15 @@ import java.util.List;
  */
 public class JdbcDeveloperDAOImpl implements DeveloperDAO {
 
-    private static final String sqlGetById = "SELECT * FROM developers " +
-            "JOIN developer_skill ON developer_skill.developer_id = developers.id " +
-            "JOIN skills ON skills.id = developer_skill.skill_id " +
-            "JOIN developer_projects ON developer_projects.developer_id = developers.id " +
-            "JOIN projects ON projects.id = developer_projects.projects_id " +
-            "WHERE developers.id = ?";
-
-    private static final String sqlGetDev = "SELECT * FROM developers";
-
     @Override
     public Developer getById(Long id) throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sqlGetById);
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM developers " +
+                "JOIN developer_skill ON developer_skill.developer_id = developers.id " +
+                "JOIN skills ON skills.id = developer_skill.skill_id " +
+                "JOIN developer_projects ON developer_projects.developer_id = developers.id " +
+                "JOIN projects ON projects.id = developer_projects.projects_id " +
+                "WHERE developers.id = ?");
         statement.setLong(1, id);
         ResultSet resultSet = statement.executeQuery();
 
@@ -64,7 +60,7 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
     public List<Developer> getAll() throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
         Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(sqlGetDev);
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM developers");
 
         List<Developer> developers = new ArrayList<>();
         HashSet<Skill> skills = new HashSet<>();
@@ -87,13 +83,62 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
     }
 
     @Override
-    public void save(Developer val) {
+    public void save(Developer val) throws SQLException{
+        Connection connection = ConnectionUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement("INSERT into developers VALUES (?, ?, ?, ?, ?)");
+        statement.setLong(1, val.getId());
+        statement.setString(2, val.getFirstName());
+        statement.setString(3, val.getLastName());
+        statement.setString(4, val.getSpecialty());
+        statement.setBigDecimal(5, val.getSalary());
+        ResultSet resultSet = statement.executeQuery();
 
+        statement = connection.prepareStatement("INSERT into projects VALUES (?, ?, ?)");
+        for(Project s: val.getProjects()) {
+            statement.setLong(1, s.getId());
+            statement.setString(2, s.getName());
+            statement.setBigDecimal(3, s.getCost());
+            statement.executeQuery();
+        }
+
+        statement = connection.prepareStatement("INSERT into developer_projects VALUES (?, ?)");
+        for(Project s: val.getProjects()) {
+            statement.setLong(1, val.getId());
+            statement.setLong(2, s.getId());
+            statement.executeQuery();
+        }
+
+        statement = connection.prepareStatement("INSERT into skills VALUES (?, ?)");
+        for(Project s: val.getProjects()) {
+            statement.setLong(1, s.getId());
+            statement.setString(2, s.getName());
+            statement.executeQuery();
+        }
+
+        statement = connection.prepareStatement("INSERT into developer_skill VALUES (?, ?)");
+        for(Project s: val.getProjects()) {
+            statement.setLong(1, val.getId());
+            statement.setLong(2, s.getId());
+            statement.executeQuery();
+        }
+
+        resultSet.close();
+        statement.close();
+        connection.close();
     }
 
+    //TODO
     @Override
-    public void update(Developer val) {
-
+    public void update(Developer val) throws SQLException {
+        Connection connection = ConnectionUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement("UPDATE developers SET first_name = ?, last_name = ?, specialty = ?, salary = ? WHERE id = ?");
+        statement.setLong(3, val.getId());
+        statement.setString(2, val.getFirstName());
+        statement.setString(1, val.getLastName());
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.close();
+        statement.close();
+        connection.close();
     }
 
     @Override
