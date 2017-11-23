@@ -127,14 +127,16 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
         connection.close();
     }
 
-    //TODO
     @Override
     public void update(Developer val) throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
         PreparedStatement statement = connection.prepareStatement("UPDATE developers SET first_name = ?, last_name = ?, specialty = ?, salary = ? WHERE id = ?");
-        statement.setLong(3, val.getId());
-        statement.setString(2, val.getFirstName());
-        statement.setString(1, val.getLastName());
+        statement.setString(1, val.getFirstName());
+        statement.setString(2, val.getLastName());
+        statement.setString(3, val.getSpecialty());
+        statement.setBigDecimal(4, val.getSalary());
+        statement.setLong(5, val.getId());
+
         ResultSet resultSet = statement.executeQuery();
         resultSet.close();
         statement.close();
