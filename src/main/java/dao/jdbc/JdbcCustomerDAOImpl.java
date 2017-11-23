@@ -33,7 +33,7 @@ public class JdbcCustomerDAOImpl implements CustomerDAO {
                 "JOIN customers_projects ON customers_projects.customers_id = ? " +
                 "WHERE id = customers_projects.projects_id");
         statement.setLong(1, id);
-        resultSet = statement.executeQuery();
+        statement.executeUpdate();
 
         Set<Project> projects = new HashSet<>();
         while (resultSet.next()) {
@@ -102,14 +102,14 @@ public class JdbcCustomerDAOImpl implements CustomerDAO {
             statement.setLong(1, s.getId());
             statement.setString(2, s.getName());
             statement.setBigDecimal(3, s.getCost());
-            statement.executeQuery();
+            statement.executeUpdate();
         }
 
         statement = connection.prepareStatement("INSERT into customers_projects VALUES (?, ?)");
         for(Project s: val.getProjects()) {
             statement.setLong(1, val.getId());
             statement.setLong(2, s.getId());
-            statement.executeQuery();
+            statement.executeUpdate();
         }
 
         resultSet.close();
@@ -124,8 +124,7 @@ public class JdbcCustomerDAOImpl implements CustomerDAO {
         statement.setLong(3, val.getId());
         statement.setString(2, val.getFirstName());
         statement.setString(1, val.getLastName());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }
@@ -133,10 +132,12 @@ public class JdbcCustomerDAOImpl implements CustomerDAO {
     @Override
     public void delete(Customer val) throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement("DELETE FROM customers WHERE id = ?");
+        PreparedStatement statement = connection.prepareStatement("DELETE FROM customers_projects WHERE projects_id = ?");
         statement.setLong(1, val.getId());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
+        statement = connection.prepareStatement("DELETE FROM customers WHERE id = ?");
+        statement.setLong(1, val.getId());
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }

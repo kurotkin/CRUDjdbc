@@ -54,8 +54,7 @@ public class JdbcSkillDAOImpl implements SkillDAO{
         PreparedStatement statement = connection.prepareStatement("INSERT into skills VALUES (?, ?)");
         statement.setLong(1, val.getId());
         statement.setString(2, val.getName());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }
@@ -66,8 +65,7 @@ public class JdbcSkillDAOImpl implements SkillDAO{
         PreparedStatement statement = connection.prepareStatement("UPDATE skills SET name = ? WHERE id = ?");
         statement.setLong(2, val.getId());
         statement.setString(1, val.getName());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }
@@ -78,8 +76,7 @@ public class JdbcSkillDAOImpl implements SkillDAO{
         PreparedStatement statement = connection.prepareStatement("DELETE FROM skills WHERE id = ? OR name = ?");
         statement.setLong(1, val.getId());
         statement.setString(2, val.getName());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }

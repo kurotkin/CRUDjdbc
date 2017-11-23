@@ -9,10 +9,10 @@ import java.sql.SQLException;
  */
 public class ConnectionUtil {
     public static final String DRIVER = "com.mysql.jdbc.Driver";
-    public static final String URL = "jdbc:mysql://127.0.0.1/BasicMySqlCRUD?useUnicode=true&" +
+    public static final String URL = "jdbc:mysql://192.168.1.20/BasicMySqlCRUD?useUnicode=true&" +
             "useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-    public static final String USER = "root";
-    public static final String PASS = "ab123";
+    public static final String USER = "user";
+    public static final String PASS = "ab12345678";
 
     static {
         try {

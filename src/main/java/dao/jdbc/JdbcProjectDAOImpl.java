@@ -57,8 +57,7 @@ public class JdbcProjectDAOImpl implements ProjectDAO{
         statement.setLong(1, val.getId());
         statement.setString(2, val.getName());
         statement.setBigDecimal(3, val.getCost());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }
@@ -70,8 +69,7 @@ public class JdbcProjectDAOImpl implements ProjectDAO{
         statement.setLong(3, val.getId());
         statement.setBigDecimal(2, val.getCost());
         statement.setString(1, val.getName());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }

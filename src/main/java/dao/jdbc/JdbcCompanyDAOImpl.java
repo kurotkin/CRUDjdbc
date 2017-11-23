@@ -19,6 +19,7 @@ public class JdbcCompanyDAOImpl implements CompanyDAO {
         Connection connection = ConnectionUtil.getConnection();
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM companies WHERE id =?");
         statement.setLong(1, id);
+        statement.execute();
         ResultSet resultSet = statement.executeQuery();
 
         Company company = new Company();
@@ -69,6 +70,7 @@ public class JdbcCompanyDAOImpl implements CompanyDAO {
 
         for (int i = 0; i < companies.size(); i++){
             preStatement.setLong(1, companies.get(i).getId());
+            preStatement.execute();
             ResultSet rs = preStatement.executeQuery();
             Set<Project> projects = new HashSet<>();
             while (rs.next()) {
@@ -93,24 +95,23 @@ public class JdbcCompanyDAOImpl implements CompanyDAO {
         PreparedStatement statement = connection.prepareStatement("INSERT into companies VALUES (?, ?)");
         statement.setLong(1, val.getId());
         statement.setString(2, val.getName());
-        ResultSet resultSet = statement.executeQuery();
+        statement.executeUpdate();
 
         statement = connection.prepareStatement("INSERT into projects VALUES (?, ?, ?)");
         for(Project s: val.getProjects()) {
             statement.setLong(1, s.getId());
             statement.setString(2, s.getName());
             statement.setBigDecimal(3, s.getCost());
-            statement.executeQuery();
+            statement.executeUpdate();
         }
 
         statement = connection.prepareStatement("INSERT into companies_projects VALUES (?, ?)");
         for(Project s: val.getProjects()) {
             statement.setLong(1, val.getId());
             statement.setLong(2, s.getId());
-            statement.executeQuery();
+            statement.executeUpdate();
         }
 
-        resultSet.close();
         statement.close();
         connection.close();
     }
@@ -121,8 +122,7 @@ public class JdbcCompanyDAOImpl implements CompanyDAO {
         PreparedStatement statement = connection.prepareStatement("UPDATE projects SET name = ? WHERE id = ?");
         statement.setLong(2, val.getId());
         statement.setString(1, val.getName());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }
@@ -130,11 +130,13 @@ public class JdbcCompanyDAOImpl implements CompanyDAO {
     @Override
     public void delete(Company val) throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement("DELETE FROM companies WHERE id = ? OR name = ?");
+        PreparedStatement statement = connection.prepareStatement("DELETE FROM companies_projects WHERE companies_id = ?");
         statement.setLong(1, val.getId());
-        statement.setString(2, val.getName());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
+
+        statement = connection.prepareStatement("DELETE FROM companies WHERE id = ?");
+        statement.setLong(1, val.getId());
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }

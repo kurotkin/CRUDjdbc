@@ -8,10 +8,7 @@ import model.Skill;
 
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Vitaly on 19.11.2017.
@@ -28,6 +25,7 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
                 "JOIN projects ON projects.id = developer_projects.projects_id " +
                 "WHERE developers.id = ?");
         statement.setLong(1, id);
+        statement.execute();
         ResultSet resultSet = statement.executeQuery();
 
         Developer developer = new Developer();
@@ -63,9 +61,6 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
         ResultSet resultSet = statement.executeQuery("SELECT * FROM developers");
 
         List<Developer> developers = new ArrayList<>();
-        HashSet<Skill> skills = new HashSet<>();
-        HashSet<Project> projects = new HashSet<>();
-
         while (resultSet.next()) {
             Developer dev = new Developer()
                     .withId(resultSet.getLong("developers.id"))
@@ -76,6 +71,35 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
             developers.add(dev);
         }
 
+        for (int i = 0; i < developers.size(); i++){
+            PreparedStatement preStatement = connection.prepareStatement("SELECT id, name, cost FROM projects " +
+                    "JOIN developer_projects ON developer_projects.developer_id = ? " +
+                    "WHERE id = developer_projects.projects_id");
+            preStatement.setLong(1, developers.get(i).getId());
+            ResultSet rs = preStatement.executeQuery();
+            Set<Project> projects = new HashSet<>();
+            while (rs.next()) {
+                Project prj = new Project().withId(rs.getLong("id"))
+                        .withName(rs.getString("name"))
+                        .withCost(rs.getBigDecimal("cost"));
+                projects.add(prj);
+            }
+            developers.get(i).withProjects(projects);
+
+            preStatement = connection.prepareStatement("SELECT id, name FROM skills " +
+                    "JOIN developer_skill ON developer_skill.developer_id = ? " +
+                    "WHERE id = developer_skill.skill_id");
+            preStatement.setLong(1, developers.get(i).getId());
+            rs = preStatement.executeQuery();
+            Set<Skill> skills = new HashSet<>();
+            while (rs.next()) {
+                Skill skill = new Skill().withId(rs.getLong("id"))
+                        .withName(rs.getString("name"));
+                skills.add(skill);
+            }
+            developers.get(i).withSkills(skills);
+            rs.close();
+        }
         resultSet.close();
         statement.close();
         connection.close();
@@ -85,44 +109,43 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
     @Override
     public void save(Developer val) throws SQLException{
         Connection connection = ConnectionUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement("INSERT into developers VALUES (?, ?, ?, ?, ?)");
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO developers VALUE (?, ?, ?, ?, ?)");
         statement.setLong(1, val.getId());
         statement.setString(2, val.getFirstName());
         statement.setString(3, val.getLastName());
         statement.setString(4, val.getSpecialty());
         statement.setBigDecimal(5, val.getSalary());
-        ResultSet resultSet = statement.executeQuery();
+        statement.executeUpdate();
 
         statement = connection.prepareStatement("INSERT into projects VALUES (?, ?, ?)");
         for(Project s: val.getProjects()) {
             statement.setLong(1, s.getId());
             statement.setString(2, s.getName());
             statement.setBigDecimal(3, s.getCost());
-            statement.executeQuery();
+            statement.executeUpdate();
         }
 
         statement = connection.prepareStatement("INSERT into developer_projects VALUES (?, ?)");
         for(Project s: val.getProjects()) {
             statement.setLong(1, val.getId());
             statement.setLong(2, s.getId());
-            statement.executeQuery();
+            statement.executeUpdate();
         }
 
         statement = connection.prepareStatement("INSERT into skills VALUES (?, ?)");
         for(Project s: val.getProjects()) {
             statement.setLong(1, s.getId());
             statement.setString(2, s.getName());
-            statement.executeQuery();
+            statement.executeUpdate();
         }
 
         statement = connection.prepareStatement("INSERT into developer_skill VALUES (?, ?)");
         for(Project s: val.getProjects()) {
             statement.setLong(1, val.getId());
             statement.setLong(2, s.getId());
-            statement.executeQuery();
+            statement.executeUpdate();
         }
 
-        resultSet.close();
         statement.close();
         connection.close();
     }
@@ -136,9 +159,7 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
         statement.setString(3, val.getSpecialty());
         statement.setBigDecimal(4, val.getSalary());
         statement.setLong(5, val.getId());
-
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }
@@ -146,10 +167,17 @@ public class JdbcDeveloperDAOImpl implements DeveloperDAO {
     @Override
     public void delete(Developer val) throws SQLException {
         Connection connection = ConnectionUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement("DELETE FROM developers WHERE id = ?");
+        PreparedStatement statement = connection.prepareStatement("DELETE FROM developer_projects WHERE developer_id = ?");
         statement.setLong(1, val.getId());
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.close();
+        statement.executeUpdate();
+
+        statement = connection.prepareStatement("DELETE FROM developer_skill WHERE developer_id = ?");
+        statement.setLong(1, val.getId());
+        statement.executeUpdate();
+
+        statement = connection.prepareStatement("DELETE FROM developers WHERE id = ?");
+        statement.setLong(1, val.getId());
+        statement.executeUpdate();
         statement.close();
         connection.close();
     }
